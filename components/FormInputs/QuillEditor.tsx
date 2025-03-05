@@ -7,11 +7,13 @@ export default function QuillEditor({
   className = "w-full bg-green-500",
   value,
   onChange,
+  error = "",
 }: {
   label: string;
   className: string;
   value: any;
   onChange: any;
+  error?: string;
 }) {
   const modules = {
     toolbar: [
@@ -46,6 +48,7 @@ export default function QuillEditor({
       >
         {label}
       </label>
+      {error && <p className="text-red-600 text-xs -mt-2 mb-2">{error}</p>}
       <ReactQuill
         theme="snow"
         value={value}

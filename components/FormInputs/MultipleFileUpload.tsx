@@ -3,6 +3,7 @@ import { File, Pencil, XCircle } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import toast from "react-hot-toast";
+import { FaFilePdf, FaImage } from "react-icons/fa";
 type MultipleImageInputProps = {
   label: string;
   files: FileProps[];
@@ -49,6 +50,7 @@ export default function MultipleFileUpload({
       {files.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2  gap-4">
           {files.map((file, i) => {
+            const extention = file.title.split(".")[1];
             return (
               <div key={i} className="relative mb-6">
                 <button
@@ -59,8 +61,12 @@ export default function MultipleFileUpload({
                   <XCircle className="" />
                 </button>
                 <div className="py-2 rounded-md px-6 bg-white dark:bg-slate-800 text-slate-800 flex items-center dark:text-slate-200 border border-slate-200">
-                  <File className="w-6 h-6 flex-shrink-0 mr-2" />
-                  <div className="flex flex-col">
+                  {extention === "pdf" ? (
+                    <FaFilePdf className="w-6 h-6 flex-shrink-0 mr-2 text-red-500" />
+                  ) : (
+                    <FaImage className="w-6 h-6 flex-shrink-0 mr-2 text-gray-600" />
+                  )}
+                  <div className="flex flex-col truncate ">
                     <span className="line-clamp-1">{file.title}</span>
                     {file.size > 0 && (
                       <span className="text-xs">

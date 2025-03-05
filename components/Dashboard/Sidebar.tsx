@@ -9,6 +9,7 @@ import {
   Mail,
   Package,
   Package2,
+  Pencil,
   Power,
   Settings,
   ShoppingCart,
@@ -78,6 +79,7 @@ export default function Sidebar({ session }: { session: Session }) {
       },
       { title: "Patients", path: "/dashboard/doctor/patients", icon: Users },
       { title: "Inbox", path: "/dashboard/doctor/inbox", icon: Mail },
+      { title: "Compose Mail", path: "/dashboard/doctor/compose", icon: Pencil },
       {
         title: "Profile",
         path: `/dashboard/doctor/profile/${id}`,
