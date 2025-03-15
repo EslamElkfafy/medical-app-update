@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { createAppointment } from "@/actions/appointments";
 import { Appointment, DoctorProfile } from "@prisma/client";
 import FrontDoctorDetails from "./FrontDoctorDetails";
+import { createRoom } from "@/actions/hms";
 export default function DoctorDetails({
   doctor,
   appointment,
@@ -61,10 +62,10 @@ export default function DoctorDetails({
     formState: { errors },
   } = useForm<AppointmentProps>({
     defaultValues: {
-      email: appointment?.email ?? "",
-      firstName: appointment?.firstName ?? "",
+      email: appointment?.email || (patient?.email as string),
+      firstName: appointment?.firstName || patient?.name?.split(" ")[0],
       phone: appointment?.phone ?? "",
-      lastName: appointment?.lastName ?? "",
+      lastName: appointment?.lastName || patient?.name?.split(" ")[1],
       occupation: appointment?.occupation ?? "",
       location: appointment?.location ?? "",
       gender: appointment?.gender ?? "",
@@ -83,6 +84,16 @@ export default function DoctorDetails({
     console.log(data);
     try {
       setLoading(true);
+      const doctorFirstName = doctor.name.split(" ")[0];
+      const patientFirstName = patient?.name?.split(" ")[0];
+      const roomName = `Dr. ${doctorFirstName} - ${patientFirstName} Meeting Appointment`;
+      const roomData = await createRoom(roomName);
+      if (roomData.error) {
+        toast.error(roomData.error);
+        return;
+      }
+      const meetingLink = `/meeting/${roomData.roomId}`;
+      data.meetingLink = meetingLink;
       const res = await createAppointment(data);
       const appo = res.data;
       setLoading(false);

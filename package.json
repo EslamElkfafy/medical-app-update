@@ -16,6 +16,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@100mslive/react-sdk": "^0.10.32",
     "@auth/prisma-adapter": "^1.5.0",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
@@ -42,6 +43,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@react-email/components": "0.0.15",
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
     "@uploadthing/react": "^6.4.1",
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
@@ -51,6 +53,7 @@
     "flowbite-react": "^0.7.2",
     "html-react-parser": "^5.1.10",
     "input-otp": "^1.2.2",
+    "jsonwebtoken": "^9.0.2",
     "lottie-react": "^2.4.0",
     "lucide-react": "^0.344.0",
     "next": "14.1.2",
@@ -78,6 +81,7 @@
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.0",
     "uploadthing": "^6.7.0",
+    "uuid": "^11.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
