@@ -1,6 +1,7 @@
 "use server";
 
 import EmailTemplate from "@/components/Emails/email-template";
+import axios from "axios";
 import { prismaClient } from "@/lib/db";
 import { DoctorDetail, RegisterInputProps } from "@/types/types";
 import generateSlug from "@/utils/generateSlug";
@@ -10,7 +11,7 @@ import { createAvailability, createDoctorProfile } from "./onboarding";
 import { generateTrackingNumber } from "@/lib/generateTracking";
 import { isEmailBlacklisted } from "@/lib/isEmailBlackListed";
 export async function createUser(formData: RegisterInputProps) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  // const resend = new Resend(process.env.RESEND_API_KEY);
   const { fullName, email, role, phone, password, plan } = formData;
   try {
     if (isEmailBlacklisted(email)) {
@@ -20,39 +21,49 @@ export async function createUser(formData: RegisterInputProps) {
         data: null,
       };
     }
-    const existingUser = await prismaClient.user.findUnique({
-      where: {
-        email,
-      },
-    });
-    if (existingUser) {
-      return {
-        data: null,
-        error: `User with this email ( ${email})  already exists in the Database`,
-        status: 409,
-      };
-    }
-    // Encrypt the Password =>bcrypt
-    const hashedPassword = await bcrypt.hash(password, 10);
-    //Generate Token
-    const generateToken = () => {
-      const min = 100000; // Minimum 6-figure number
-      const max = 999999; // Maximum 6-figure number
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    const userToken = generateToken();
-    const newUser = await prismaClient.user.create({
-      data: {
-        name: fullName,
-        slug: generateSlug(fullName),
-        email,
-        phone,
-        password: hashedPassword,
-        role,
-        plan,
-        token: userToken,
-      },
-    });
+    // const existingUser = await prismaClient.user.findUnique({
+    //   where: {
+    //     email,
+    //   },
+    // });
+    // if (existingUser) {
+    //   return {
+    //     data: null,
+    //     error: `User with this email ( ${email})  already exists in the Database`,
+    //     status: 409,
+    //   };
+    // }
+    // // Encrypt the Password =>bcrypt
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    // //Generate Token
+    // const generateToken = () => {
+    //   const min = 100000; // Minimum 6-figure number
+    //   const max = 999999; // Maximum 6-figure number
+    //   return Math.floor(Math.random() * (max - min + 1)) + min;
+    // };
+    // const userToken = generateToken();
+    // const newUser = await prismaClient.user.create({
+    //   data: {
+    //     name: fullName,
+    //     slug: generateSlug(fullName),
+    //     email,
+    //     phone,
+    //     password: hashedPassword,
+    //     role,
+    //     plan,
+    //     token: userToken,
+    //   },
+    // });
+    const response = await axios.post("http://localhost:3001/api/v1/auth/signup", {
+      name: fullName,
+      email,
+      password,
+      phone,
+      role,
+      plan,
+    })
+    console.log(response);
+    const newUser = response.data.user;
     const profileData = {
       firstName: newUser.name.split(" ")[0] ?? "",
       lastName: newUser.name.split(" ")[1] ?? "",
@@ -87,21 +98,21 @@ export async function createUser(formData: RegisterInputProps) {
     };
     await createAvailability(availabilityData);
     //Send an Email with the Token on the link as a search param
-    const token = newUser.token;
-    const userId = newUser.id;
-    const firstName = newUser.name.split(" ")[0];
-    const linkText = "Verify your Account ";
-    const message =
-      "Thank you for registering with Online Doctors. To complete your registration and verify your email address, please enter the following 6-digit verification code on our website :";
-    const sendMail = await resend.emails.send({
-      from: "Medical App <info@jazzafricaadventures.com>",
-      to: email,
-      subject: "Verify Your Email Address",
-      react: EmailTemplate({ firstName, token, linkText, message }),
-    });
-    console.log(token);
-    console.log(sendMail);
-    console.log(newUser);
+    // const token = newUser.token;
+    // const userId = newUser.id;
+    // const firstName = newUser.name.split(" ")[0];
+    // const linkText = "Verify your Account ";
+    // const message =
+    //   "Thank you for registering with Online Doctors. To complete your registration and verify your email address, please enter the following 6-digit verification code on our website :";
+    // const sendMail = await resend.emails.send({
+    //   from: "Medical App <info@jazzafricaadventures.com>",
+    //   to: email,
+    //   subject: "Verify Your Email Address",
+    //   react: EmailTemplate({ firstName, token, linkText, message }),
+    // });
+    // console.log(token);
+    // console.log(sendMail);
+    // console.log(newUser);
     return {
       data: newUser,
       error: null,
