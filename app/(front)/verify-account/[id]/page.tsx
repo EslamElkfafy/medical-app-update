@@ -18,7 +18,9 @@ export default async function VerifyAccount({
 }) {
   //Get a User from DB
   const user = await getUserById(id);
-  const userToken = user?.token;
+  console.log(user);
+  // const userToken = user?.token;
+  const email = user?.email;
   const role = user?.role;
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -26,12 +28,12 @@ export default async function VerifyAccount({
         <CardHeader>
           <CardTitle className="text-xl">Verify Token</CardTitle>
           <CardDescription>
-            Please enter the 6-figure pass code sent to your email -{" "}
-            {user?.email}.
+            Please enter the 4-figure pass code sent to your email -{" "}
+            {email}.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <VerifyTokenForm role={role} userToken={userToken} id={id} />
+          <VerifyTokenForm role={role} email={email} />
         </CardContent>
       </Card>
     </div>

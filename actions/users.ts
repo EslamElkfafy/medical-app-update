@@ -10,6 +10,7 @@ import { Resend } from "resend";
 import { createAvailability, createDoctorProfile } from "./onboarding";
 import { generateTrackingNumber } from "@/lib/generateTracking";
 import { isEmailBlacklisted } from "@/lib/isEmailBlackListed";
+import axiosInstance from "@/lib/axiosInstance";
 export async function createUser(formData: RegisterInputProps) {
   // const resend = new Resend(process.env.RESEND_API_KEY);
   const { fullName, email, role, phone, password, plan } = formData;
@@ -54,15 +55,19 @@ export async function createUser(formData: RegisterInputProps) {
     //     token: userToken,
     //   },
     // });
-    const response = await axios.post("http://localhost:3001/api/v1/auth/signup", {
-      name: fullName,
-      email,
-      password,
-      phone,
-      role,
-      plan,
-    })
+    const response = await axiosInstance.post(
+      "/auth/signup",
+      {
+        name: fullName,
+        email,
+        password,
+        phone,
+        role,
+        plan,
+      }
+    );
     console.log(response);
+    response.data.user.id = response.data.user._id;
     const newUser = response.data.user;
     const profileData = {
       firstName: newUser.name.split(" ")[0] ?? "",
@@ -125,8 +130,73 @@ export async function createUser(formData: RegisterInputProps) {
     };
   }
 }
+export async function validateEmail(email: string | undefined, code: string) {
+
+  try {
+    const response = await axiosInstance.post(
+      `/auth/validate-verification-code/${code}`,
+      {
+        email,
+      }
+    );
+    console.log(response);
+    // console.log(newUser);
+    // const profileData = {
+    //   firstName: newUser.name.split(" ")[0] ?? "",
+    //   lastName: newUser.name.split(" ")[1] ?? "",
+    //   trackingNumber: generateTrackingNumber(),
+    //   userId: newUser._id,
+    //   phone: newUser.phone,
+    //   email: newUser.email,
+    // };
+    // console.log(profileData);
+    // const profile = await createDoctorProfile(profileData);
+    // const times = [
+    //   "7:00 AM",
+    //   "8:00 AM",
+    //   "9:00 AM",
+    //   "10:00 AM",
+    //   "11:00 AM",
+    //   "12:00 PM",
+    //   "1:00 PM",
+    //   "2:00 PM",
+    //   "3:00 PM",
+    //   "4:00 PM",
+    //   "5:00 PM",
+    //   "6:00 PM",
+    // ];
+    // const availabilityData = {
+    //   monday: times,
+    //   tuesday: times,
+    //   wednesday: times,
+    //   thursday: times,
+    //   friday: times,
+    //   saturday: times,
+    //   doctorProfileId: profile.data?.id,
+    // };
+    // await createAvailability(availabilityData);
+    return {
+      data: "User Created Successfully",
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      error: "Something went wrong",
+    };
+  }
+}
 
 export async function getUserById(id: string) {
+  // try {
+  //   const response = await axios.get(`http://localhost:3001/api/v1/profile/${id}`);
+  //   const user = response.data.user;
+  //   return user;
+  // } catch (error) {
+  //   console.log(error);
+  //   return null;
+  // }
   if (id) {
     try {
       const user = await prismaClient.user.findUnique({
@@ -135,6 +205,8 @@ export async function getUserById(id: string) {
         },
       });
       return user;
+      console.log(id);
+      console.log(user);
     } catch (error) {
       console.log(error);
     }

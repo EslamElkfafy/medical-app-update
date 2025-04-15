@@ -26,23 +26,21 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { updateUserById } from "@/actions/users";
+import { updateUserById, validateEmail } from "@/actions/users";
 import SubmitButton from "../FormInputs/SubmitButton";
 import { UserRole } from "@prisma/client";
 
 const FormSchema = z.object({
-  token: z.string().min(6, {
-    message: "Your Token must be 6 characters.",
+  token: z.string().min(4, {
+    message: "Your Token must be 4 characters.",
   }),
 });
 
 export default function VerifyTokenForm({
-  userToken,
-  id,
+  email,
   role,
 }: {
-  userToken: number | undefined;
-  id: string;
+  email: string | undefined;
   role: UserRole | undefined;
 }) {
   const [loading, setLoading] = useState(false);
@@ -57,12 +55,13 @@ export default function VerifyTokenForm({
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
-    const userInputToken = parseInt(data.token);
-    if (userInputToken === userToken) {
+    // const userInputToken = parseInt(data.token);
+    const response = await validateEmail(email, data.token);
+    if (response.status === 200) {
       setShowNotification(false);
       //Update User
       try {
-        await updateUserById(id);
+        // await updateUserById(id);
         setLoading(false);
         // reset();
         toast.success("Account Verified");
@@ -80,7 +79,7 @@ export default function VerifyTokenForm({
       setShowNotification(true);
       setLoading(false);
     }
-    console.log(userInputToken);
+    // console.log(userInputToken);
   }
 
   return (
@@ -105,13 +104,14 @@ export default function VerifyTokenForm({
                     <InputOTPSlot index={0} />
                     <InputOTPSlot index={1} />
                     <InputOTPSlot index={2} />
+                    <InputOTPSlot index={3} />
                   </InputOTPGroup>
-                  <InputOTPSeparator />
-                  <InputOTPGroup>
+                  {/* <InputOTPSeparator /> */}
+                  {/* <InputOTPGroup>
                     <InputOTPSlot index={3} />
                     <InputOTPSlot index={4} />
                     <InputOTPSlot index={5} />
-                  </InputOTPGroup>
+                  </InputOTPGroup> */}
                 </InputOTP>
               </FormControl>
               {/* <FormDescription>
