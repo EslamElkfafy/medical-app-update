@@ -1,7 +1,9 @@
 "use server";
 
 import WelcomeEmail from "@/components/Emails/welcome-email";
+import axiosInstance from "@/lib/axiosInstance";
 import { prismaClient } from "@/lib/db";
+import axios from "axios";
 import { Resend } from "resend";
 export async function createDoctorProfile(formData: any) {
   const {
@@ -48,11 +50,18 @@ export async function createDoctorProfile(formData: any) {
 }
 export async function createAvailability(data: any) {
   try {
-    const newAvail = await prismaClient.availability.create({
-      data,
-    });
-    console.log(newAvail);
-    return newAvail;
+    // const newAvail = await prismaClient.availability.create({
+    //   data,
+    // });
+    // console.log(newAvail);
+    // return newAvail;
+    const response = await axios.post("https://api-booking-service.vercel.app/api/v1/availability", data);
+    console.log(response.data);
+    return {
+      data: response.data,
+      status: 201,      
+      error: null,      
+    };
   } catch (error) {
     console.log(error);
     return {
