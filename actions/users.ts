@@ -53,39 +53,41 @@ export async function createUser(formData: RegisterInputProps) {
         token: userToken,
       },
     });
-    const profileData = {
-      firstName: newUser.name.split(" ")[0] ?? "",
-      lastName: newUser.name.split(" ")[1] ?? "",
-      trackingNumber: generateTrackingNumber(),
-      userId: newUser.id,
-      phone: newUser.phone,
-      email: newUser.email,
-    };
-    const profile = await createDoctorProfile(profileData);
-    const times = [
-      "7:00 AM",
-      "8:00 AM",
-      "9:00 AM",
-      "10:00 AM",
-      "11:00 AM",
-      "12:00 PM",
-      "1:00 PM",
-      "2:00 PM",
-      "3:00 PM",
-      "4:00 PM",
-      "5:00 PM",
-      "6:00 PM",
-    ];
-    const availabilityData = {
-      monday: times,
-      tuesday: times,
-      wednesday: times,
-      thursday: times,
-      friday: times,
-      saturday: times,
-      doctorProfileId: profile.data?.id,
-    };
-    await createAvailability(availabilityData);
+    if(role === "DOCTOR"){
+      const profileData = {
+        firstName: newUser.name.split(" ")[0] ?? "",
+        lastName: newUser.name.split(" ")[1] ?? "",
+        trackingNumber: generateTrackingNumber(),
+        userId: newUser.id,
+        phone: newUser.phone,
+        email: newUser.email,
+      };
+      const profile = await createDoctorProfile(profileData);
+      const times = [
+        "7:00 AM",
+        "8:00 AM",
+        "9:00 AM",
+        "10:00 AM",
+        "11:00 AM",
+        "12:00 PM",
+        "1:00 PM",
+        "2:00 PM",
+        "3:00 PM",
+        "4:00 PM",
+        "5:00 PM",
+        "6:00 PM",
+      ];
+      const availabilityData = {
+        monday: times,
+        tuesday: times,
+        wednesday: times,
+        thursday: times,
+        friday: times,
+        saturday: times,
+        doctorProfileId: profile.data?.id,
+      };
+      await createAvailability(availabilityData);
+    }
     //Send an Email with the Token on the link as a search param
     const token = newUser.token;
     const userId = newUser.id;
