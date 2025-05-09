@@ -9,8 +9,10 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";
 import { OnboardingContextProvider } from "@/context/context";
+// import axios from "axios";
 
-// import { ourFileRouter } from "~/app/api/uploadthing/core";
+// // import { ourFileRouter } from "~/app/api/uploadthing/core";
+// axios.defaults.withCredentials = true;
 
 export const metadata: Metadata = {
   title: {

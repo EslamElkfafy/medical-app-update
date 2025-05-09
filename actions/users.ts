@@ -75,6 +75,7 @@ export async function createUser(formData: RegisterInputProps) {
         phone: newUser.phone,
         email: newUser.email,
       };
+      console.log(profileData);
       const profile = await createDoctorProfile(profileData);
       const times = [
         "7:00 AM",

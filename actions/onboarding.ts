@@ -55,7 +55,7 @@ export async function createAvailability(data: any) {
     // });
     // console.log(newAvail);
     // return newAvail;
-    const response = await axios.post("https://api-booking-service.vercel.app/api/v1/availability", data);
+    const response = await axios.post("https://localhost:3003/api/v1/availability", data);
     console.log(response.data);
     return {
       data: response.data,
@@ -101,21 +101,29 @@ export async function updateAvailabilityById(
   id: string | undefined,
   data: any
 ) {
-  if (id) {
+  // if (id) {
     try {
-      const updatedAva = await prismaClient.availability.update({
-        where: {
-          id,
-        },
-        data,
-      });
-      console.log(updatedAva);
+      console.log("------------------------------")
+      console.log(data);
+      const response = await axios.patch("http://localhost:3003/api/v1/availability",{
+        saturday: ["9:00", "10:00", "14:30"]
+    }, {withCredentials: true});
+    console.log(response.data);
+      // console.log(response.data);
+      // const updatedAva = await prismaClient.availability.update({
+      //   where: {
+      //     id,
+      //   },
+      //   data,
+      // });
+      // console.log(updatedAva);
       return {
-        data: updatedAva,
+        data: response.data,
         status: 201,
         error: null,
       };
     } catch (error) {
+      console.log("-----------------------------")
       console.log(error);
       return {
         data: null,
@@ -123,7 +131,7 @@ export async function updateAvailabilityById(
         error: "Availability was not updated",
       };
     }
-  }
+  // }
 }
 
 export async function getApplicationByTrack(trackingNumber: string) {
