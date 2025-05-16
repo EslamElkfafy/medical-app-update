@@ -27,6 +27,10 @@ export const docsConfig: DocsConfig = {
       title: "Be service provider",
       href: "/join/doctors",
     },
+    {
+      title: "Xray Analysis",
+      href: "/xray",
+    },
   ],
   sidebarNav: [
     {
