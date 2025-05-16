@@ -1,4 +1,5 @@
 import { getServices } from "@/actions/services";
+import ChatBot from "@/components/Frontend/Chatbot";
 import Footer from "@/components/Frontend/Footer";
 import MegaMenu from "@/components/Frontend/MegaMenu";
 import Navbar from "@/components/Frontend/Navbar";
@@ -13,6 +14,7 @@ export default async function Layout({ children }: { children: ReactNode }) {
     <div className="">
       <SiteHeader session={session} />
       {children}
+      <ChatBot />
       <Footer />
     </div>
   );

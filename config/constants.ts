@@ -12,3 +12,5 @@ export const timesArray = [
   "5:00 PM",
   "6:00 PM",
 ];
+
+export const apiUrl = "http://localhost:5000";
