@@ -11,7 +11,7 @@ export default async function page({
   //Get existing doctor profile
   const specialties = (await getSpecialties()).data || [];
   const doctorProfile = (await getDoctorProfileById(id))?.data;
-  // console.log(doctorProfile);
+  console.log(doctorProfile);
   return (
     <div className="bg-teal-700 dark:bg-slate-800">
       {doctorProfile && doctorProfile.id && (

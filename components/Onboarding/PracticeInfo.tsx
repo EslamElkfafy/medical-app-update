@@ -12,7 +12,7 @@ import RadioInput from "../FormInputs/RadioInput";
 import ArrayItemsInput from "../FormInputs/ArrayInput";
 import ShadSelectInput from "../FormInputs/ShadSelectInput";
 import { StepFormProps } from "./BioDataForm";
-import { updateDoctorProfile } from "@/actions/onboarding";
+import { savePracticeData, updateDoctorProfile } from "@/actions/onboarding";
 import { useOnboardingContext } from "@/context/context";
 
 export default function PracticeInfo({
@@ -86,7 +86,7 @@ export default function PracticeInfo({
     console.log(data);
     setIsLoading(true);
     try {
-      const res = await updateDoctorProfile(doctorProfile.id, data);
+      const res = await savePracticeData(doctorProfile.userId, data);
       setPracticeData(data);
       if (res?.status === 201) {
         setIsLoading(false);

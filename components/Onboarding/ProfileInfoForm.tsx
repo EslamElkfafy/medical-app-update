@@ -15,7 +15,7 @@ import RadioInput from "../FormInputs/RadioInput";
 import ImageInput from "../FormInputs/ImageInput";
 import { StepFormProps } from "./BioDataForm";
 import { useOnboardingContext } from "@/context/context";
-import { updateDoctorProfile } from "@/actions/onboarding";
+import { saveProfileData, updateDoctorProfile } from "@/actions/onboarding";
 
 export default function ProfileInfoForm({
   page,
@@ -68,7 +68,7 @@ export default function ProfileInfoForm({
     data.profilePicture = profileImage;
     console.log(data);
     try {
-      const res = await updateDoctorProfile(doctorProfile.id, data);
+      const res = await saveProfileData(doctorProfile.userId, data);
       setProfileData(data);
       if (res?.status === 201) {
         setIsLoading(false);

@@ -16,7 +16,7 @@ import MultipleFileUpload, {
   FileProps,
 } from "../FormInputs/MultipleFileUpload";
 import { StepFormProps } from "./BioDataForm";
-import { updateDoctorProfile } from "@/actions/onboarding";
+import { saveEducationData, updateDoctorProfile } from "@/actions/onboarding";
 import { useOnboardingContext } from "@/context/context";
 
 export default function EducationInfo({
@@ -86,7 +86,7 @@ export default function EducationInfo({
     // boardCertificates: string[];
     // page: string;
     try {
-      const res = await updateDoctorProfile(doctorProfile.id, data);
+      const res = await saveEducationData(doctorProfile.userId, data);
       setEducationData(data);
       if (res?.status === 201) {
         setIsLoading(false);

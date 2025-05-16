@@ -10,7 +10,11 @@ import { DatePickerInput } from "../FormInputs/DatePickerInput";
 
 import RadioInput from "../FormInputs/RadioInput";
 import { generateTrackingNumber } from "@/lib/generateTracking";
-import { createDoctorProfile, updateDoctorProfile } from "@/actions/onboarding";
+import {
+  createDoctorProfile,
+  saveBioData,
+  updateDoctorProfile,
+} from "@/actions/onboarding";
 import { useOnboardingContext } from "@/context/context";
 import { DoctorProfile, Speciality } from "@prisma/client";
 
@@ -94,7 +98,7 @@ export default function BioDataForm({
     try {
       //save data to db
       if (formId) {
-        const res = await updateDoctorProfile(doctorProfile.id, data);
+        const res = await saveBioData(doctorProfile.userId, data);
         if (res && res.status === 201) {
           setIsLoading(false);
           toast.success("Bio Data updated successfully");

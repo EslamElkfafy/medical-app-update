@@ -5,63 +5,159 @@ import axiosInstance from "@/lib/axiosInstance";
 import { prismaClient } from "@/lib/db";
 import axios from "axios";
 import { Resend } from "resend";
-export async function createDoctorProfile(formData: any) {
-  const {
-    dob,
-    firstName,
-    gender,
-    lastName,
-    middleName,
-    page,
-    trackingNumber,
-    userId,
-    phone,
-    email,
-  } = formData;
+
+const DOCTOR_SERVICE_BASE_URL = "http://localhost:8080/onboarding"; // Replace with the actual base URL of your doctor-service
+
+// Create Doctor Profile
+export async function createDoctorProfile(doctorRequest: Record<string, any>) {
   try {
-    const newProfile = await prismaClient.doctorProfile.create({
-      data: {
-        dob,
-        firstName,
-        gender,
-        lastName,
-        middleName,
-        page,
-        trackingNumber,
-        userId,
-        phone,
-        email,
-      },
-    });
-    console.log(newProfile);
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/create-doctor`,
+      doctorRequest
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error creating doctor profile:", error);
+    throw error;
+  }
+}
+
+// Save Bio Data
+export async function saveBioData(
+  userId: string,
+  bioInfoRequest: Record<string, any>
+) {
+  try {
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/${userId}/bio-data`,
+      bioInfoRequest
+    );
     return {
-      data: newProfile,
+      data: response.data,
       status: 201,
       error: null,
     };
   } catch (error) {
-    console.log(error);
-    return {
-      data: null,
-      status: 500,
-      error: "Something went wrong",
-    };
+    console.error("Error saving bio data:", error);
+    throw error;
   }
 }
-export async function createAvailability(data: any) {
+
+// Save Profile Data
+export async function saveProfileData(
+  userId: string,
+  profileInfoRequest: Record<string, any>
+) {
   try {
-    // const newAvail = await prismaClient.availability.create({
-    //   data,
-    // });
-    // console.log(newAvail);
-    // return newAvail;
-    const response = await axios.post("https://api-booking-service.vercel.app/api/v1/availability", data);
-    console.log(response.data);
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/${userId}/profile-data`,
+      profileInfoRequest
+    );
     return {
       data: response.data,
-      status: 201,      
-      error: null,      
+      status: 201,
+      error: null,
     };
+  } catch (error) {
+    console.error("Error saving profile data:", error);
+    throw error;
+  }
+}
+
+// Save Contact Data
+export async function saveContactData(
+  userId: string,
+  contactInfoRequest: Record<string, any>
+) {
+  try {
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/${userId}/contact-data`,
+      contactInfoRequest
+    );
+    return {
+      data: response.data,
+      status: 201,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error saving contact data:", error);
+    throw error;
+  }
+}
+
+// Save Education Data
+export async function saveEducationData(
+  userId: string,
+  educationInfoRequest: Record<string, any>
+) {
+  try {
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/${userId}/education-data`,
+      educationInfoRequest
+    );
+    return {
+      data: response.data,
+      status: 201,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error saving education data:", error);
+    throw error;
+  }
+}
+
+// Save Practice Data
+export async function savePracticeData(
+  userId: string,
+  practiceInfoRequest: Record<string, any>
+) {
+  try {
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/${userId}/practice-data`,
+      practiceInfoRequest
+    );
+    return {
+      data: response.data,
+      status: 201,
+      error: null,
+    };
+  } catch (error) {
+    console.error("Error saving practice data:", error);
+    throw error;
+  }
+}
+
+// Save Additional Data
+export async function saveAdditionalData(
+  userId: string,
+  additionalInfoRequest: Record<string, any>
+) {
+  try {
+    const response = await axios.post(
+      `${DOCTOR_SERVICE_BASE_URL}/${userId}/additional-data`,
+      additionalInfoRequest
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error saving additional data:", error);
+    throw error;
+  }
+}
+
+export async function createAvailability(data: any) {
+  try {
+    const newAvail = await prismaClient.availability.create({
+      data,
+    });
+    console.log(newAvail);
+    return newAvail;
+    // const response = await axios.post("https://api-booking-service.vercel.app/api/v1/availability", data);
+    // console.log(response.data);
+    // return {
+    //   data: response.data,
+    //   status: 201,
+    //   error: null,
+    // };
   } catch (error) {
     console.log(error);
     return {
@@ -186,6 +282,7 @@ export async function completeProfile(id: string | undefined, data: any) {
         subject: "Welcome to Online Doctors",
         react: WelcomeEmail({ firstName, previewText, message }),
       });
+      console.log("Email sent successfully:", sendMail);
       const updatedProfile = await prismaClient.doctorProfile.update({
         where: {
           id,
@@ -219,7 +316,7 @@ export async function getDoctorProfileById(userId: string | undefined) {
           availability: true,
         },
       });
-      // console.log(profile);
+      console.log(profile);
       return {
         data: profile,
         status: 200,
@@ -233,5 +330,50 @@ export async function getDoctorProfileById(userId: string | undefined) {
         error: "Profile was not fetched",
       };
     }
+  }
+}
+
+// Add a function to handle the complete onboarding process
+export async function completeDoctorOnboarding(
+  userId: string,
+  onboardingData: {
+    bioData: Record<string, any>;
+    contactData: Record<string, any>;
+    educationData: Record<string, any>;
+    practiceData: Record<string, any>;
+    profileData: Record<string, any>;
+    additionalData: Record<string, any>;
+  }
+) {
+  try {
+    // Step 1: Save Bio Data
+    await saveBioData(userId, onboardingData.bioData);
+
+    // Step 2: Save Contact Data
+    await saveContactData(userId, onboardingData.contactData);
+
+    // Step 3: Save Education Data
+    await saveEducationData(userId, onboardingData.educationData);
+
+    // Step 4: Save Practice Data
+    await savePracticeData(userId, onboardingData.practiceData);
+
+    // Step 5: Save Profile Data
+    await saveProfileData(userId, onboardingData.profileData);
+
+    // Step 6: Save Additional Data
+    await saveAdditionalData(userId, onboardingData.additionalData);
+
+    return {
+      status: 200,
+      message: "Doctor onboarding completed successfully",
+    };
+  } catch (error) {
+    console.error("Error during doctor onboarding:", error);
+    return {
+      status: 500,
+      message: "An error occurred during onboarding",
+      error,
+    };
   }
 }

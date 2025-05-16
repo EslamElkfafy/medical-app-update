@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import RadioInput from "../FormInputs/RadioInput";
 
 import { StepFormProps } from "./BioDataForm";
-import { updateDoctorProfile } from "@/actions/onboarding";
+import { saveContactData, updateDoctorProfile } from "@/actions/onboarding";
 import { useOnboardingContext } from "@/context/context";
 
 export default function ContactInfo({
@@ -55,7 +55,7 @@ export default function ContactInfo({
     // state: string;
     // page: string;
     try {
-      const res = await updateDoctorProfile(doctorProfile.id, data);
+      const res = await saveContactData(doctorProfile.userId, data);
       setContactData(data);
       if (res?.status === 201) {
         setIsLoading(false);
