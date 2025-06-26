@@ -33,7 +33,7 @@ export default function LoginFormWithBg() {
     try {
       setIsLoading(true);
       console.log("Attempting to sign in with credentials:", data);
-      const loginResponse = await axiosInstance.post("/auth/login", data);
+      
       const loginData = await signIn("credentials", {
         ...data,
         redirect: false,
@@ -44,6 +44,9 @@ export default function LoginFormWithBg() {
         toast.error("Sign-in error: Check your credentials");
         setShowNotification(true);
       } else {
+        await axiosInstance.post("/auth/login", data, {
+          withCredentials: true,
+        });
         // Sign-in was successful
         setShowNotification(false);
         reset();

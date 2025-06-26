@@ -3,6 +3,7 @@
 import WelcomeEmail from "@/components/Emails/welcome-email";
 import axiosInstance from "@/lib/axiosInstance";
 import { prismaClient } from "@/lib/db";
+import { changeTimeZone } from "@/utils/changeTimeZone";
 import axios from "axios";
 import { Resend } from "resend";
 export async function createDoctorProfile(formData: any) {
@@ -50,20 +51,27 @@ export async function createDoctorProfile(formData: any) {
 }
 export async function createAvailability(data: any) {
   try {
-    // const newAvail = await prismaClient.availability.create({
-    //   data,
+    const newAvail = await prismaClient.availability.create({
+      data,
+    });
+    console.log(newAvail);
+    return newAvail;
+    // console.log("Creating availability with data:", data);
+    // console.log("Access Token:", accessToken);
+    // const response = await axios.patch(`http://localhost:3003/api/v1/availability/${data.doctorProfileId}`, data, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${accessToken}`,
+    //   },
     // });
-    // console.log(newAvail);
-    // return newAvail;
-    const response = await axios.post("https://localhost:3003/api/v1/availability", data);
-    console.log(response.data);
-    return {
-      data: response.data,
-      status: 201,      
-      error: null,      
-    };
+    // console.log(response.data);
+    // return {
+    //   data: response.data,
+    //   status: 201,      
+    //   error: null,      
+    // };
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return {
       data: null,
       status: 500,
@@ -101,24 +109,20 @@ export async function updateAvailabilityById(
   id: string | undefined,
   data: any
 ) {
-  // if (id) {
+  if (id) {
     try {
       console.log("------------------------------")
       console.log(data);
-      const response = await axios.patch("http://localhost:3003/api/v1/availability",{
-        saturday: ["9:00", "10:00", "14:30"]
-    }, {withCredentials: true});
-    console.log(response.data);
-      // console.log(response.data);
-      // const updatedAva = await prismaClient.availability.update({
-      //   where: {
-      //     id,
-      //   },
-      //   data,
-      // });
-      // console.log(updatedAva);
+      
+      const updatedAva = await prismaClient.availability.update({
+        where: {
+          id,
+        },
+        data,
+      });
+      console.log(updatedAva);
       return {
-        data: response.data,
+        data: updatedAva,
         status: 201,
         error: null,
       };
@@ -131,7 +135,7 @@ export async function updateAvailabilityById(
         error: "Availability was not updated",
       };
     }
-  // }
+  }
 }
 
 export async function getApplicationByTrack(trackingNumber: string) {
@@ -227,6 +231,10 @@ export async function getDoctorProfileById(userId: string | undefined) {
           availability: true,
         },
       });
+
+      if(profile && profile.availability) {
+        profile.availability = changeTimeZone(profile.availability);
+      }
       // console.log(profile);
       return {
         data: profile,

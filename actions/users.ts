@@ -11,6 +11,8 @@ import { createAvailability, createDoctorProfile } from "./onboarding";
 import { generateTrackingNumber } from "@/lib/generateTracking";
 import { isEmailBlacklisted } from "@/lib/isEmailBlackListed";
 import axiosInstance from "@/lib/axiosInstance";
+import { changeTimeZone } from "@/utils/changeTimeZone";
+import { Availability } from "@prisma/client";
 export async function createUser(formData: RegisterInputProps) {
   // const resend = new Resend(process.env.RESEND_API_KEY);
   const { fullName, email, role, phone, password, plan } = formData;
@@ -65,6 +67,7 @@ export async function createUser(formData: RegisterInputProps) {
     });
     console.log(response);
     response.data.user.id = response.data.user._id;
+    const accessToken = response.data.accessToken;
     const newUser = response.data.user;
     if (role === "DOCTOR") {
       const profileData = {
@@ -77,30 +80,29 @@ export async function createUser(formData: RegisterInputProps) {
       };
       console.log(profileData);
       const profile = await createDoctorProfile(profileData);
-      const times = [
-        "7:00 AM",
-        "8:00 AM",
-        "9:00 AM",
-        "10:00 AM",
-        "11:00 AM",
-        "12:00 PM",
-        "1:00 PM",
-        "2:00 PM",
-        "3:00 PM",
-        "4:00 PM",
-        "5:00 PM",
-        "6:00 PM",
-      ];
+
       const availabilityData = {
-        monday: times,
-        tuesday: times,
-        wednesday: times,
-        thursday: times,
-        friday: times,
-        saturday: times,
+        sunday: [],
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
+        saturday: [],
         doctorProfileId: profile.data?.id,
       };
-      await createAvailability(availabilityData);
+      console.log("Creating availability with data:", availabilityData);
+      console.log("Access Token:", accessToken);
+      await axios.patch(
+        `http://localhost:3003/api/v1/availability/${availabilityData.doctorProfileId}`,
+        availabilityData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
     }
     //Send an Email with the Token on the link as a search param
     // const token = newUser.token;
@@ -286,7 +288,14 @@ export async function getDoctors() {
         },
       },
     });
-
+    // Process availability to change time zones if needed
+    doctors.forEach((doctor) => {
+      if (doctor.doctorProfile?.availability) {
+        doctor.doctorProfile.availability = changeTimeZone(
+          doctor.doctorProfile.availability as Availability
+        );
+      }
+    });
     return doctors;
   } catch (error) {
     console.log(error);
@@ -349,6 +358,12 @@ export async function getDoctorBySlug(slug: string) {
           },
         },
       });
+      // Process availability to change time zones if needed
+      if (doctor?.doctorProfile?.availability) {
+        doctor.doctorProfile.availability = changeTimeZone(
+          doctor.doctorProfile.availability as Availability
+        );
+      }
       if (!doctor) {
         return null;
       }
@@ -415,6 +430,12 @@ export async function getDoctorById(id: string) {
           },
         },
       });
+      // Process availability to change time zones if needed
+      if (doctor?.doctorProfile?.availability) {
+        doctor.doctorProfile.availability = changeTimeZone(
+          doctor.doctorProfile.availability as Availability
+        );
+      }
       if (!doctor) {
         return null;
       }
@@ -436,6 +457,9 @@ export async function getDoctorProfile(id: string) {
           availability: true,
         },
       });
+      if (profile && profile.availability) {
+        profile.availability = changeTimeZone(profile.availability);
+      }
       return profile;
     } catch (error) {
       console.log(error);

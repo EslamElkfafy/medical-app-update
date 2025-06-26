@@ -18,6 +18,9 @@ import toast from "react-hot-toast";
 import { createAppointment } from "@/actions/appointments";
 import { Appointment, DoctorProfile } from "@prisma/client";
 import FrontDoctorDetails from "./FrontDoctorDetails";
+import axios from "axios";
+import { convertToTimeStrings, formatTimeFromISOString } from "@/utils/convertToTimeStrings";
+
 export default function DoctorDetails({
   doctor,
   appointment,
@@ -38,7 +41,11 @@ export default function DoctorDetails({
   const longDate = getLongDate(date!.toDateString());
   const [dob, setDob] = useState<Date | undefined>(undefined);
   console.log(longDate);
-  const times = doctor.doctorProfile?.availability?.[day] ?? null;
+  // const times = doctor.doctorProfile?.availability?.[day] ?? null;
+  const [times, setTimes] = useState<string[] | null>(null);
+  // const fallbackTimes = doctor.doctorProfile?.availability?.[day] ?? [];
+  const allTimes = times ?? [];
+
   const [medicalDocs, setMedicalDocs] = useState<FileProps[]>([]);
   const genderOptions = [
     {
@@ -70,24 +77,44 @@ export default function DoctorDetails({
       gender: appointment?.gender ?? "",
     },
   });
+  React.useEffect(() => {
+    console.log(date);
+    if (date) {
+      fetchAvailableSlots(date);
+    }
+  }, [date]);
   async function onSubmit(data: AppointmentProps) {
+    data.appointmentDateTime = selectedTime;
     data.medicalDocuments = medicalDocs.map((item) => item.url);
     data.appointmentDate = date;
     data.appointmentFormattedDate = longDate;
-    data.appointmentTime = selectedTime;
+    data.appointmentTime = formatTimeFromISOString(selectedTime);
     (data.doctorId = doctor.id),
       (data.charge = doctor.doctorProfile?.hourlyWage ?? 0);
     data.dob = dob;
     data.patientId = patient?.id ?? "";
+    data.doctorProfileId = doctorProfile?.id ?? "";
     data.doctorName = doctor.name;
     console.log(data);
     try {
       setLoading(true);
-      const res = await createAppointment(data);
+      // const res = await createAppointment(data);
+      const res = await axios.post(
+        `http://localhost:3003/api/v1/appointment`,
+        data, {
+          withCredentials: true,
+        }
+      );
       const appo = res.data;
       setLoading(false);
       toast.success("Appointment Created Successfully");
-      router.push("/dashboard/user/appointments");
+      // console.log(appo);
+      // await axios.post(
+      //   `http://localhost:3003/api/v1/appointment/create-payment/${appo.data._id}`, data, {
+      //     withCredentials: true,
+      //   });
+      // router.push("/dashboard/user/appointments");
+      window.location.href = appo.data.paymentUrl;
       console.log(appo);
     } catch (error) {
       setLoading(false);
@@ -95,6 +122,30 @@ export default function DoctorDetails({
     }
     // router.push("/dashboard/services");
   }
+  async function fetchAvailableSlots(date: Date) {
+    if (!date) return;
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // getMonth is 0-indexed
+    const year = date.getFullYear();
+
+    try {
+      const response = await axios.get(
+        `http://localhost:3003/api/v1/slots/available/${doctorProfile?.id}`,
+        {
+          params: {
+            day: day.toString().padStart(2, "0"),
+            month: month.toString().padStart(2, "0"),
+            year,
+          },
+        }
+      );
+      setTimes(response.data.data || []); // Adjust based on actual response structure
+    } catch (error) {
+      console.error("Error fetching available slots:", error);
+      setTimes([]);
+    }
+  }
+
   function initiateAppointment() {
     if (patient?.id) {
       if (!selectedTime) {
@@ -150,9 +201,9 @@ export default function DoctorDetails({
                   <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
                     {longDate}
                   </h2>
-                  {times && times.length > 0 && (
+                  {allTimes && allTimes.length > 0 && (
                     <div className="py-3 grid grid-cols-4 gap-2">
-                      {times.map((item, i) => {
+                      {allTimes.map((item, i) => {
                         return (
                           <Button
                             key={i}
@@ -161,7 +212,7 @@ export default function DoctorDetails({
                               selectedTime === item ? "default" : "outline"
                             }
                           >
-                            {item}
+                            {formatTimeFromISOString(item)}
                           </Button>
                         );
                       })}

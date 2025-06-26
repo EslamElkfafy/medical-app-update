@@ -41,6 +41,7 @@ import ModeToggle from "../ModeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
+import axiosInstance from "@/lib/axiosInstance";
 // import { User } from "@prisma/client";
 // import { User } from "next-auth";
 export default function NavBar({ session }: { session: Session }) {
@@ -48,6 +49,9 @@ export default function NavBar({ session }: { session: Session }) {
   const router = useRouter();
   async function handleLogout() {
     await signOut();
+      await axiosInstance.post("/auth/logout", {
+          withCredentials: true,
+        });
     router.push("/login");
   }
   return (

@@ -11,6 +11,7 @@ export default async function page() {
   const user = session?.user;
   console.log(user);
   const profile = await getDoctorProfileById(user?.id);
+  console.log("lllllllllllllllllllllllllllllllllllllllllllllllllllllllllll");
   console.log(profile);
   return (
     <div className="max-w-5xl mx-auto w-full px-6 py-6">

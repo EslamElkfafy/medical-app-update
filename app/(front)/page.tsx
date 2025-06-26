@@ -8,7 +8,7 @@ import React from "react";
 
 export default async function Home() {
   const doctors = (await getDoctors()) || [];
-  // console.log(doctors);
+  console.log(doctors);
   const telhealthDoctors = doctors.filter(
     (doctor) => doctor.doctorProfile?.operationMode === "Telehealth visit"
   );

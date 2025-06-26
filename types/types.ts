@@ -147,6 +147,8 @@ export type DoctorDetail = {
 };
 
 export interface AppointmentProps {
+  doctorProfileId: string;
+  appointmentDateTime: string;
   appointmentDate: Date | undefined;
   appointmentFormattedDate: string;
   doctorId: string;
