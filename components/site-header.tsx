@@ -25,12 +25,16 @@ import { useRouter } from "next/navigation";
 import { getInitials } from "@/utils/generateInitials";
 import { Service } from "@prisma/client";
 import SearchBar from "./Frontend/SearchBar";
+import axiosInstance from "@/lib/axiosInstance";
 export function SiteHeader({ session }: { session: Session | null }) {
   const user = session?.user;
   const initials = getInitials(user?.name);
   const router = useRouter();
   async function handleLogout() {
     await signOut();
+    await axiosInstance.post("/auth/logout", {
+          withCredentials: true,
+        });
     router.push("/login");
   }
   return (

@@ -2,6 +2,7 @@
 
 import { prismaClient } from "@/lib/db";
 import { Doctor } from "@/types/types";
+import { changeTimeZone } from "@/utils/changeTimeZone";
 import generateSlug from "@/utils/generateSlug";
 
 type ServiceProps = {
@@ -30,6 +31,14 @@ export async function getDoctorsByServiceSlug(slug: string) {
           },
         },
       });
+      if (service && service.doctorProfiles?.length) {
+        service.doctorProfiles = service.doctorProfiles.map((doctor) => {
+          if (doctor.availability) {
+            doctor.availability = changeTimeZone(doctor.availability);
+          }
+          return doctor;
+        });
+      }
       doctors = service?.doctorProfiles.map((doc) => {
         return {
           id: doc.userId,
@@ -75,6 +84,14 @@ export async function getDoctorsBySpecialtySlug(slug: string) {
           },
         },
       });
+      if (service && service.doctorProfiles?.length) {
+        service.doctorProfiles = service.doctorProfiles.map((doctor) => {
+          if (doctor.availability) {
+            doctor.availability = changeTimeZone(doctor.availability);
+          }
+          return doctor;
+        });
+      }
       doctors = service?.doctorProfiles.map((doc) => {
         return {
           id: doc.userId,
@@ -118,6 +135,13 @@ export async function getDoctorsBySymptomId(symptomId: string) {
           availability: true,
         },
       });
+      if (doctorProfiles && doctorProfiles.length) {
+        doctorProfiles.forEach((doc) => {
+          if (doc.availability) {
+            doc.availability = changeTimeZone(doc.availability);
+          }
+        });
+      }
       doctors = doctorProfiles.map((doc: any) => {
         return {
           id: doc.userId,
@@ -196,6 +220,13 @@ export async function getDoctorsBySearch(query: string) {
         availability: true,
       },
     });
+    if (doctorProfiles && doctorProfiles.length) {
+      doctorProfiles.forEach((doc) => {
+        if (doc.availability) {
+          doc.availability = changeTimeZone(doc.availability);
+        }
+      });
+    }
     const doctors = doctorProfiles.map((doc) => {
       return {
         id: doc.userId,

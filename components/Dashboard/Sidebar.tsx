@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import generateSlug from "@/utils/generateSlug";
+import axiosInstance from "@/lib/axiosInstance";
 
 export default function Sidebar({ session }: { session: Session }) {
   const { user } = session;
@@ -141,6 +142,9 @@ export default function Sidebar({ session }: { session: Session }) {
   const router = useRouter();
   async function handleLogout() {
     await signOut();
+      await axiosInstance.post("/auth/logout", {
+              withCredentials: true,
+            });
     router.push("/login");
   }
   return (

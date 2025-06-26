@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import SelectedTimes from "./SelectedTimes";
 import { timesArray } from "@/config/constants";
+import axios from "axios";
 
 export default function Monday({
   profile,
@@ -19,6 +20,8 @@ export default function Monday({
   day: string;
 }) {
   let initialData: string[] = ["7:00 AM"];
+  console.log("llllllllllllllllllllllllllllllllllllllllllllllllllllll44444");
+  console.log(profile,profile?.availability);
   if (profile && profile?.availability) {
     initialData = profile?.availability[day] || [];
   }
@@ -45,13 +48,18 @@ export default function Monday({
   }
   async function handleSubmit() {
     setLoading(true);
+    console.log("heeeeeeeeeellllllllllllloooooooooooo")
+    console.log(profile?.id, availability?.id);
     try {
       if (profile?.id && availability?.id) {
         const data = {
           monday: selectedTimes,
           doctorProfileId: profile.id,
         };
-        await updateAvailabilityById(availability?.id, data);
+        // await updateAvailabilityById(profile?.id, data);
+        // axios.defaults.withCredentials = true;
+        const response = await axios.patch(`http://localhost:3003/api/v1/availability/${profile?.id}`,data,{withCredentials: true});
+      console.log(response.data);
         setLoading(false);
         toast.success("Settings Updated Successfully");
         // console.log(data);
@@ -68,6 +76,7 @@ export default function Monday({
         // console.log("Profile id Not set");
       }
     } catch (error) {
+      toast.error("Something went wrong");
       setLoading(false);
       console.log(error);
     }

@@ -17,6 +17,10 @@ export default function DoctorCard({
   isInPerson?: boolean;
   doctor: any;
 }) {
+  // const date = new Date();
+  // const month = `0${date.getMonth() + 1}`.slice(-2);
+  // const day = `0${date.getDate()}`.slice(-2);
+  // const year = date.getFullYear();
   const today: keyof DoctorProfileAvailability = getDayName();
   const times = doctor.doctorProfile?.availability?.[today] ?? null;
   const formattedDate = getFormattedDate();

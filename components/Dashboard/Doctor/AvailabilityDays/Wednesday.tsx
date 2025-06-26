@@ -10,6 +10,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 import SelectedTimes from "./SelectedTimes";
 import { timesArray } from "@/config/constants";
+import axios from "axios";
 
 export default function Wednesday({
   profile,
@@ -40,13 +41,16 @@ export default function Wednesday({
   }
   async function handleSubmit() {
     setLoading(true);
+    console.log(profile?.id, availability?.id);
     try {
       if (profile?.id && availability?.id) {
         const data = {
           wednesday: selectedTimes,
           doctorProfileId: profile.id,
         };
-        await updateAvailabilityById(availability?.id, data);
+        // await updateAvailabilityById(profile?.id, data);
+            const response = await axios.patch(`http://localhost:3003/api/v1/availability/${profile?.id}`,data,{withCredentials: true});
+              console.log(response.data);
         toast.success("Settings Updated Successfully");
         setLoading(false);
         // console.log(data);
@@ -63,6 +67,7 @@ export default function Wednesday({
         // console.log("Profile id Not set");
       }
     } catch (error) {
+      toast.error("Something went wrong");
       setLoading(false);
       console.log(error);
     }

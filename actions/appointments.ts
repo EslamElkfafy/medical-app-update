@@ -126,12 +126,15 @@ export async function getAppointments() {
         createdAt: "desc",
       },
     });
+    console.log("Appointments fetched successfully");
+    console.log(appointments);
     return {
       data: appointments,
       status: 200,
       error: null,
     };
   } catch (error) {
+    console.log("Error fetching appointments");
     console.log(error);
     return {
       data: null,
@@ -246,3 +249,4 @@ export async function deleteAppointment(id: string) {
     };
   }
 }
+

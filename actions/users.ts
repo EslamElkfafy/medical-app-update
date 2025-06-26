@@ -1,6 +1,7 @@
 "use server";
 
 import EmailTemplate from "@/components/Emails/email-template";
+import axios from "axios";
 import { prismaClient } from "@/lib/db";
 import { DoctorDetail, RegisterInputProps } from "@/types/types";
 import generateSlug from "@/utils/generateSlug";
@@ -9,8 +10,11 @@ import { Resend } from "resend";
 import { createAvailability, createDoctorProfile } from "./onboarding";
 import { generateTrackingNumber } from "@/lib/generateTracking";
 import { isEmailBlacklisted } from "@/lib/isEmailBlackListed";
+import axiosInstance from "@/lib/axiosInstance";
+import { changeTimeZone } from "@/utils/changeTimeZone";
+import { Availability } from "@prisma/client";
 export async function createUser(formData: RegisterInputProps) {
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  // const resend = new Resend(process.env.RESEND_API_KEY);
   const { fullName, email, role, phone, password, plan } = formData;
   try {
     if (isEmailBlacklisted(email)) {
@@ -20,40 +24,52 @@ export async function createUser(formData: RegisterInputProps) {
         data: null,
       };
     }
-    const existingUser = await prismaClient.user.findUnique({
-      where: {
-        email,
-      },
+    // const existingUser = await prismaClient.user.findUnique({
+    //   where: {
+    //     email,
+    //   },
+    // });
+    // if (existingUser) {
+    //   return {
+    //     data: null,
+    //     error: `User with this email ( ${email})  already exists in the Database`,
+    //     status: 409,
+    //   };
+    // }
+    // // Encrypt the Password =>bcrypt
+    // const hashedPassword = await bcrypt.hash(password, 10);
+    // //Generate Token
+    // const generateToken = () => {
+    //   const min = 100000; // Minimum 6-figure number
+    //   const max = 999999; // Maximum 6-figure number
+    //   return Math.floor(Math.random() * (max - min + 1)) + min;
+    // };
+    // const userToken = generateToken();
+    // const newUser = await prismaClient.user.create({
+    //   data: {
+    //     name: fullName,
+    //     slug: generateSlug(fullName),
+    //     email,
+    //     phone,
+    //     password: hashedPassword,
+    //     role,
+    //     plan,
+    //     token: userToken,
+    //   },
+    // });
+    const response = await axiosInstance.post("/auth/signup", {
+      name: fullName,
+      email,
+      password,
+      phone,
+      role,
+      plan,
     });
-    if (existingUser) {
-      return {
-        data: null,
-        error: `User with this email ( ${email})  already exists in the Database`,
-        status: 409,
-      };
-    }
-    // Encrypt the Password =>bcrypt
-    const hashedPassword = await bcrypt.hash(password, 10);
-    //Generate Token
-    const generateToken = () => {
-      const min = 100000; // Minimum 6-figure number
-      const max = 999999; // Maximum 6-figure number
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    };
-    const userToken = generateToken();
-    const newUser = await prismaClient.user.create({
-      data: {
-        name: fullName,
-        slug: generateSlug(fullName),
-        email,
-        phone,
-        password: hashedPassword,
-        role,
-        plan,
-        token: userToken,
-      },
-    });
-    if(role === "DOCTOR"){
+    console.log(response);
+    response.data.user.id = response.data.user._id;
+    const accessToken = response.data.accessToken;
+    const newUser = response.data.user;
+    if (role === "DOCTOR") {
       const profileData = {
         firstName: newUser.name.split(" ")[0] ?? "",
         lastName: newUser.name.split(" ")[1] ?? "",
@@ -62,48 +78,48 @@ export async function createUser(formData: RegisterInputProps) {
         phone: newUser.phone,
         email: newUser.email,
       };
+      console.log(profileData);
       const profile = await createDoctorProfile(profileData);
-      const times = [
-        "7:00 AM",
-        "8:00 AM",
-        "9:00 AM",
-        "10:00 AM",
-        "11:00 AM",
-        "12:00 PM",
-        "1:00 PM",
-        "2:00 PM",
-        "3:00 PM",
-        "4:00 PM",
-        "5:00 PM",
-        "6:00 PM",
-      ];
+
       const availabilityData = {
-        monday: times,
-        tuesday: times,
-        wednesday: times,
-        thursday: times,
-        friday: times,
-        saturday: times,
+        sunday: [],
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
+        saturday: [],
         doctorProfileId: profile.data?.id,
       };
-      await createAvailability(availabilityData);
+      console.log("Creating availability with data:", availabilityData);
+      console.log("Access Token:", accessToken);
+      await axios.patch(
+        `http://localhost:3003/api/v1/availability/${availabilityData.doctorProfileId}`,
+        availabilityData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
     }
     //Send an Email with the Token on the link as a search param
-    const token = newUser.token;
-    const userId = newUser.id;
-    const firstName = newUser.name.split(" ")[0];
-    const linkText = "Verify your Account ";
-    const message =
-      "Thank you for registering with Online Doctors. To complete your registration and verify your email address, please enter the following 6-digit verification code on our website :";
-    const sendMail = await resend.emails.send({
-      from: "Medical App <info@jazzafricaadventures.com>",
-      to: email,
-      subject: "Verify Your Email Address",
-      react: EmailTemplate({ firstName, token, linkText, message }),
-    });
-    console.log(token);
-    console.log(sendMail);
-    console.log(newUser);
+    // const token = newUser.token;
+    // const userId = newUser.id;
+    // const firstName = newUser.name.split(" ")[0];
+    // const linkText = "Verify your Account ";
+    // const message =
+    //   "Thank you for registering with Online Doctors. To complete your registration and verify your email address, please enter the following 6-digit verification code on our website :";
+    // const sendMail = await resend.emails.send({
+    //   from: "Medical App <info@jazzafricaadventures.com>",
+    //   to: email,
+    //   subject: "Verify Your Email Address",
+    //   react: EmailTemplate({ firstName, token, linkText, message }),
+    // });
+    // console.log(token);
+    // console.log(sendMail);
+    // console.log(newUser);
     return {
       data: newUser,
       error: null,
@@ -116,8 +132,72 @@ export async function createUser(formData: RegisterInputProps) {
     };
   }
 }
+export async function validateEmail(email: string | undefined, code: string) {
+  try {
+    const response = await axiosInstance.post(
+      `/auth/validate-verification-code/${code}`,
+      {
+        email,
+      }
+    );
+    console.log(response);
+    // console.log(newUser);
+    // const profileData = {
+    //   firstName: newUser.name.split(" ")[0] ?? "",
+    //   lastName: newUser.name.split(" ")[1] ?? "",
+    //   trackingNumber: generateTrackingNumber(),
+    //   userId: newUser._id,
+    //   phone: newUser.phone,
+    //   email: newUser.email,
+    // };
+    // console.log(profileData);
+    // const profile = await createDoctorProfile(profileData);
+    // const times = [
+    //   "7:00 AM",
+    //   "8:00 AM",
+    //   "9:00 AM",
+    //   "10:00 AM",
+    //   "11:00 AM",
+    //   "12:00 PM",
+    //   "1:00 PM",
+    //   "2:00 PM",
+    //   "3:00 PM",
+    //   "4:00 PM",
+    //   "5:00 PM",
+    //   "6:00 PM",
+    // ];
+    // const availabilityData = {
+    //   monday: times,
+    //   tuesday: times,
+    //   wednesday: times,
+    //   thursday: times,
+    //   friday: times,
+    //   saturday: times,
+    //   doctorProfileId: profile.data?.id,
+    // };
+    // await createAvailability(availabilityData);
+    return {
+      data: "User Created Successfully",
+      error: null,
+      status: 200,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      error: "Something went wrong",
+    };
+  }
+}
 
 export async function getUserById(id: string) {
+  // try {
+  //   const response = await axios.get(`http://localhost:3001/api/v1/profile/${id}`);
+  //   const user = response.data.user;
+  //   return user;
+  // } catch (error) {
+  //   console.log(error);
+  //   return null;
+  // }
   if (id) {
     try {
       const user = await prismaClient.user.findUnique({
@@ -126,6 +206,8 @@ export async function getUserById(id: string) {
         },
       });
       return user;
+      console.log(id);
+      console.log(user);
     } catch (error) {
       console.log(error);
     }
@@ -206,7 +288,14 @@ export async function getDoctors() {
         },
       },
     });
-
+    // Process availability to change time zones if needed
+    doctors.forEach((doctor) => {
+      if (doctor.doctorProfile?.availability) {
+        doctor.doctorProfile.availability = changeTimeZone(
+          doctor.doctorProfile.availability as Availability
+        );
+      }
+    });
     return doctors;
   } catch (error) {
     console.log(error);
@@ -269,6 +358,12 @@ export async function getDoctorBySlug(slug: string) {
           },
         },
       });
+      // Process availability to change time zones if needed
+      if (doctor?.doctorProfile?.availability) {
+        doctor.doctorProfile.availability = changeTimeZone(
+          doctor.doctorProfile.availability as Availability
+        );
+      }
       if (!doctor) {
         return null;
       }
@@ -335,6 +430,12 @@ export async function getDoctorById(id: string) {
           },
         },
       });
+      // Process availability to change time zones if needed
+      if (doctor?.doctorProfile?.availability) {
+        doctor.doctorProfile.availability = changeTimeZone(
+          doctor.doctorProfile.availability as Availability
+        );
+      }
       if (!doctor) {
         return null;
       }
@@ -356,6 +457,9 @@ export async function getDoctorProfile(id: string) {
           availability: true,
         },
       });
+      if (profile && profile.availability) {
+        profile.availability = changeTimeZone(profile.availability);
+      }
       return profile;
     } catch (error) {
       console.log(error);
