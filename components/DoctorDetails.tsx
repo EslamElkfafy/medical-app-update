@@ -115,7 +115,7 @@ export default function DoctorDetails({
       const meetingLink = `/meeting/${roomData.roomId}`;
       data.meetingLink = meetingLink;
       const res = await axios.post(
-        `http://localhost:3003/api/v1/appointment`,
+        `${process.env.NEXT_PUBLIC_BOOKING_URL}appointment`,
         data,
         {
           withCredentials: true,
@@ -127,7 +127,7 @@ export default function DoctorDetails({
       toast.success("Appointment Created Successfully");
       // console.log(appo);
       // await axios.post(
-      //   `http://localhost:3003/api/v1/appointment/create-payment/${appo.data._id}`, data, {
+      //   `${process.env.NEXT_PUBLIC_BOOKING_URL}appointment/create-payment/${appo.data._id}`, data, {
       //     withCredentials: true,
       //   });
       // router.push("/dashboard/user/appointments");
@@ -147,7 +147,7 @@ export default function DoctorDetails({
 
     try {
       const response = await axios.get(
-        `http://localhost:3003/api/v1/slots/available/${doctorProfile?.id}`,
+        `${process.env.NEXT_PUBLIC_BOOKING_URL}slots/available/${doctorProfile?.id}`,
         {
           params: {
             day: day.toString().padStart(2, "0"),

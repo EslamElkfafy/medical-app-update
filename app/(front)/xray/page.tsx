@@ -52,7 +52,7 @@ const ImageUploadPage = () => {
       // and get back results. This is a simulated API call.
       const formData = new FormData();
       formData.append("image", image);
-      const response = await axios.post("http://127.0.0.1:5000/ai-xray-detection", formData);
+      const response = await axios.post(process.env.NEXT_PUBLIC_XRAY_URL + "/ai-xray-detection", formData);
 
       // Simulate a response from the medical image analysis API
       const mockResult: ImageAnalysisResult = {

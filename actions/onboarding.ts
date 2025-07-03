@@ -58,7 +58,7 @@ export async function createAvailability(data: any) {
     return newAvail;
     // console.log("Creating availability with data:", data);
     // console.log("Access Token:", accessToken);
-    // const response = await axios.patch(`http://localhost:3003/api/v1/availability/${data.doctorProfileId}`, data, {
+    // const response = await axios.patch(`${process.env.NEXT_PUBLIC_BOOKING_URL}availability/${data.doctorProfileId}`, data, {
     //   headers: {
     //     "Content-Type": "application/json",
     //     Authorization: `Bearer ${accessToken}`,

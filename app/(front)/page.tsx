@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'; 
 import { getDoctors } from "@/actions/users";
 import DoctorsList from "@/components/DoctorsList";
 import Brands from "@/components/Frontend/Brands";

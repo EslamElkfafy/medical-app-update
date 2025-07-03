@@ -49,7 +49,7 @@ export default function Wednesday({
           doctorProfileId: profile.id,
         };
         // await updateAvailabilityById(profile?.id, data);
-            const response = await axios.patch(`http://localhost:3003/api/v1/availability/${profile?.id}`,data,{withCredentials: true});
+            const response = await axios.patch(`${process.env.NEXT_PUBLIC_BOOKING_URL}availability/${profile?.id}`,data,{withCredentials: true});
               console.log(response.data);
         toast.success("Settings Updated Successfully");
         setLoading(false);

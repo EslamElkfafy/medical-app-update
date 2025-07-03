@@ -36,6 +36,7 @@ export default function RegisterWithBg({
     data.role = role;
     data.plan = plan;
     try {
+      console.log(process.env.NEXT_PUBLIC_AUTHENTICATION_URL);
       const user = await createUser(data);
       if (user.status === 409) {
         setIsLoading(false);

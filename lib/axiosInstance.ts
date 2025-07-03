@@ -1,7 +1,6 @@
-import axios from 'axios';
-
+import axios from 'axios'
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3001/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_AUTHENTICATION_URL,
   withCredentials: true, // 👈 this sets it per-instance
 });
 

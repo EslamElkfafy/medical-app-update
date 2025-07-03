@@ -94,7 +94,7 @@ export async function createUser(formData: RegisterInputProps) {
       console.log("Creating availability with data:", availabilityData);
       console.log("Access Token:", accessToken);
       await axios.patch(
-        `http://localhost:3003/api/v1/availability/${availabilityData.doctorProfileId}`,
+        `${process.env.NEXT_PUBLIC_BOOKING_URL}availability/${availabilityData.doctorProfileId}`,
         availabilityData,
         {
           headers: {
