@@ -25,7 +25,7 @@ export default function DoctorsList({
       <div className="max-w-6xl mx-auto">
         <SectionHeading title={title} />
         <div className="py-4 flex items-center justify-between">
-          {isInPerson ? (
+          {/* {isInPerson ? (
             <Link
               href=""
               className="text-sm flex items-center text-blue-700 font-semibold"
@@ -35,7 +35,7 @@ export default function DoctorsList({
             </Link>
           ) : (
             <ToggleButton />
-          )}
+          )} */}
           <Button asChild>
             <Link className=" " href={`/category?mode=${title}`}>
               See All

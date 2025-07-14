@@ -12,10 +12,6 @@ export const docsConfig: DocsConfig = {
       href: "/",
     },
     {
-      title: "Find Doctor",
-      href: "/find-doctor",
-    },
-    {
       title: "Telehealth Visit",
       href: "/category?mode=Telehealth%20visit",
     },
